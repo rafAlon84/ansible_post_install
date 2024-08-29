@@ -1,0 +1,7 @@
+---
+# handlers file for aws
+- name: Update repositories
+  apt:
+    update_cache: yes
+    autoclean: yes
+    state: present

@@ -1,0 +1,11 @@
+---
+# vars file for Common-repo
+repositories:
+  - git
+  - curl
+  - htop
+  - gnupg
+  - software-properties-common
+  - net-tools
+  - snapd
+  - unzip

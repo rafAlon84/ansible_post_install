@@ -1,0 +1,14 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Check if Terraform is installed
+      command: terraform --version
+      register: terraform_version
+      changed_when: false
+      failed_when: "'Terraform' not in terraform_version.stdout"
+
+    - name: Show Terraform version
+      debug:
+        msg: "Terraform version: {{ terraform_version.stdout }}"

@@ -1,0 +1,8 @@
+---
+# tasks file for Common-repo
+- name: Install repositories
+  apt:
+    name: "{{ repositories }}"
+    state: present
+    update_cache: yes
+    autoclean: yes

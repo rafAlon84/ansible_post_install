@@ -1,0 +1,14 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Check if Python is installed
+      command: python3 --version
+      register: python_version
+      changed_when: false
+      failed_when: "'Python' not in python_version.stdout"
+
+    - name: Show Python version
+      debug:
+        msg: "Python version: {{ python_version.stdout }}"

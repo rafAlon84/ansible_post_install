@@ -1,0 +1,14 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Check if AWS CLI is installed
+      command: aws --version
+      register: aws_version
+      changed_when: false
+      failed_when: "'aws-cli' not in aws_version.stdout"
+
+    - name: Show AWS-CLI version
+      debug:
+        msg: "AWS_CLI version: {{ aws_version.stdout }}"

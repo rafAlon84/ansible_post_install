@@ -1,0 +1,80 @@
+---
+# tasks file for aws
+- name: Check if AWS ClI is installed
+  command: aws --version
+  register: awscli_stat
+  ignore_errors: true
+
+- name: debugging
+  debug:
+    var: awscli_stat
+
+- name: Download AWS CLI if not exists
+  stat:
+    path: /home/{{ ansible_user }}/Download/awscliv2.zip
+  register: zip_stat
+  when: awscli_stat.failed is defined and awscli_stat.failed
+
+- name: debugging
+  debug:
+    var: zip_stat
+
+- name: Install AWS CLI - Download
+  shell:
+    cmd: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  when:
+    - zip_stat.stat.exists is not defined or not zip_stat.stat.exists
+    - awscli_stat.failed is defined and awscli_stat.failed
+  args:
+    chdir: /home/{{ ansible_user }}/Download
+  environment:
+    HOME: "/home/{{ ansible_user }}"
+    USER: "{{ ansible_user }}"
+
+- name: Install AWS CLI - Unzip files
+  unarchive:
+    src: /home/{{ ansible_user }}/Download/awscliv2.zip
+    dest: /home/{{ ansible_user }}/Download
+    remote_src: true
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "644"
+  when: awscli_stat.failed
+
+- name: Change permission to execute
+  file:
+    path: /home/{{ ansible_user }}/Download/aws/
+    mode: "0755"
+    state: directory
+    recurse: yes
+
+- name: Install AWS CLI if exists
+  stat:
+    path: /usr/local/aws-cli
+  register: aws_cli_stat
+
+- name: Install AWS CLI - Install .sh
+  shell:
+    cmd: ./aws/install
+  when: aws_cli_stat.stat.exists == False
+  args:
+    chdir: /home/{{ ansible_user }}/Download
+  environment:
+    HOME: "/home/{{ ansible_user }}"
+    USER: "{{ ansible_user }}"
+  become: true
+
+- name: Agregar AWS CLI al PATH
+  lineinfile:
+    path: /home/{{ ansible_user }}/.zshrc
+    line: "export PATH=$PATH:/usr/local/aws-cli/v2/current/bin"
+    state: present
+    insertafter: EOF
+  become: true
+
+- name: Reload Zsh configuration to apply changes
+  shell: source /home/{{ ansible_user }}/.zshrc
+  args:
+    executable: "{{ shell_type }}"
+  environment:
+    HOME: "/home/{{ ansible_user }}"

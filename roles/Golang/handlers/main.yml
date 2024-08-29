@@ -1,0 +1,7 @@
+---
+# handlers file for Golang
+- name: Update repositories
+  apt:
+    update_cache: yes
+    autoclean: yes
+    state: present

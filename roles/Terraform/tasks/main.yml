@@ -1,0 +1,75 @@
+---
+# tasks file for Terraform
+- name: Download and dearmor the Hashicorp GPG key and save on keyring
+  shell: wget -O- https://apt.releases.hashicorp.com/gpg | \
+    gpg --dearmor | \
+    sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+  args:
+    executable: /{{ shell_type }}
+
+- name: Add Hashicorp's repository to the system
+  lineinfile:
+    path: /etc/apt/sources.list.d/hashicorp.list
+    line: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    create: yes
+
+- name: Check if Terraform is installed
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.terraform.d"
+  register: terraform_stat
+
+# - name: Debug
+#   debug:
+#     var: terraform_stat
+
+- name: Install Terraform from the new repository
+  shell:
+    cmd: sudo apt-get update && sudo apt-get install terraform
+    executable: /{{ shell_type }}
+  when: terraform_stat.stat.exists == False
+  args:
+    chdir: /home/{{ ansible_user }}
+  environment:
+    HOME: "/home/{{ ansible_user }}"
+    USER: "{{ ansible_user }}"
+  become: true
+
+- name: We changed the folder's owner
+  file:
+    path: "/home/ubuntu/.terraform.d"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: directory
+    recurse: yes
+  become: true
+
+- name: Check if Terraform Auto-complete is installed
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.terraform.d"
+  register: terraform_stat2
+  become: true
+
+# - name: List Terraform check file 2
+#   shell: ls -l /home/{{ ansible_user }}/.terraform.d
+#   register: ls_output
+#   ignore_errors: true
+#   become: true
+
+# - name: Debug ls_output
+#   debug:
+#     var: ls_output.stdout
+
+# - name: Debug
+#   debug:
+#     var: terraform_stat2
+
+- name: Install Terraform auto-complete
+  shell:
+    cmd: terraform -install-autocomplete
+    executable: /{{ shell_type }}
+  when: terraform_stat2.stat.exists == False
+  environment:
+    HOME: "/home/{{ ansible_user }}"
+    USER: "{{ansible_user }}"
+    SHELL: /{{ shell_type }}
+  become: true

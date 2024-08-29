@@ -1,0 +1,9 @@
+---
+- name: Host post instalation
+  hosts: all
+  roles:
+    - NewDirectories
+    - Common-repo
+    - zsh
+    - Terraform
+    - aws

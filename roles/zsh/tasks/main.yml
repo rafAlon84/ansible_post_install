@@ -1,0 +1,105 @@
+---
+# tasks file for roles
+- name: Check if zsh is installed
+  stat:
+    path: "/etc/zsh"
+  register: zsh_stat
+
+- name: Install zsh
+  shell:
+    cmd: echo 'Y' | sudo apt install zsh
+  when: zsh_stat.stat.exists == False
+
+- name: Check if Oh-My-Zsh is installed
+  stat:
+    path: "/home/{{ ansible_user }}/.oh-my-zsh"
+  register: oh_my_zsh_stat
+
+- name: Install Oh-My-Zsh
+  shell:
+    cmd: curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh
+    executable: /bin/bash
+  when: oh_my_zsh_stat.stat.exists == False
+  args:
+    chdir: /home/{{ ansible_user }}
+  environment:
+    ZSH: "/home/{{ ansible_user }}/.oh-my-zsh"
+    HOME: "/home/{{ ansible_user }}"
+    USER: "{{ ansible_user }}"
+
+- name: Copy the custom .zshrc file
+  copy:
+    src: files/.zshrc
+    dest: "/home/{{ ansible_user }}/.zshrc"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Change shell to zsh
+  shell:
+    cmd: chsh {{ ansible_user }} -s /bin/zsh
+
+- name: Check if .autoenv is installed
+  stat:
+    path: "/home/{{ ansible_user }}/.autoenv"
+  register: autoenv_stat
+
+- name: Install .autoenv
+  shell:
+    cmd: |
+      curl -fsSL 'https://raw.githubusercontent.com/hyperupcall/autoenv/master/scripts/install.sh' | sh
+    executable: /bin/bash
+  when: autoenv_stat.stat.exists == False
+  args:
+    chdir: /home/{{ ansible_user }}
+  environment:
+    HOME: "/home/{{ ansible_user }}"
+    USER: "{{ ansible_user }}"
+
+- name: Check if Starship is installed
+  stat:
+    path: "/home/{{ ansible_user }}/.config/starship.toml"
+  register: starship_stat
+
+- name: Install Starship
+  shell:
+    cmd: |
+      curl -sS https://starship.rs/install.sh | sh -s -- -y
+    executable: /bin/bash
+  when: starship_stat.stat.exists == False
+  args:
+    chdir: /home/{{ ansible_user }}
+  environment:
+    HOME: "home/{{ ansible_user }}"
+    USER: "{{ ansible_user }}"
+
+- name: Copy starship.toml
+  copy:
+    src: files/starship.toml
+    dest: "/home/{{ ansible_user }}/.config/starship.toml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Reload Zsh configuration to apply changes
+  shell: source /home/{{ ansible_user }}/.zshrc
+  args:
+    executable: /bin/zsh
+  environment:
+    HOME: "/home/{{ ansible_user }}"
+
+- name: Restart LXC container
+  command: lxc restart {{ inventory_hostname }}
+  delegate_to: localhost # Esta tarea se ejecuta en el host de control
+
+- name: Pause to allow the container to restart
+  pause:
+    seconds: 15 # Este parámetro ajusta el tiempo según sea necesario
+
+- name: Wait for the container to be available over SSH
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: 22
+    delay: 10
+    timeout: 300
+    state: started

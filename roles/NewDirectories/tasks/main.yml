@@ -1,0 +1,15 @@
+---
+# tasks file for NewDirectories
+- name: Create Download file
+  file:
+    name: Download
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: directory
+
+- name: Create .config file
+  file:
+    name: .config
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: directory

@@ -1,0 +1,65 @@
+# Inserts a blank line between shell prompts
+add_newline = true
+
+# Customizing the prompt
+format = """
+$username\
+$hostname\
+$shlvl\
+$directory\
+$vcsh\
+$git_branch\
+$git_commit\
+$git_state\
+$git_metrics\
+$git_status\
+$hg_branch\
+$docker_context\
+$package\
+$golang\
+$pulumi\
+$python\
+$rust\
+$terraform\
+$vagrant\
+$nix_shell\
+$memory_usage\
+$aws\
+$azure\
+$env_var\
+$custom\
+$sudo\
+$cmd_duration\
+$line_break\
+$jobs\
+$battery\
+$time\
+$status\
+$shell\
+[$character](bold green)"""
+
+# Configure if and how the time is shown
+[time]
+disabled = false
+time_format = "%T"
+format = "🕙[$time ](bold blue)"
+
+[sudo]
+disabled = false
+style = "bold green"
+symbol = "💪"
+format = "[<SUDO>$symbol]($style)"
+
+[status]
+disabled = false
+style = "bg:blue"
+symbol = "🔴"
+map_symbol = true
+format = '[\[$symbol $common_meaning$signal_name$maybe_int\]]($style) '
+
+[username]
+style_user = 'white bold'
+style_root = 'black bold'
+format = 'user: [$user]($style) '
+disabled = false
+show_always = true
