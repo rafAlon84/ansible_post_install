@@ -13,17 +13,17 @@ Estructura del Proyecto
 
 Aquí tienes un desglose de la estructura del proyecto:
 
-ansible_post_install
-├── dynamic_inventory.py  # Script en Python para inventario
-├── main.yml              # Archivo principal del playbook de Ansible
-├── roles/                # Carpeta con roles de Ansible
-│   ├── aws/              # Instala la CLI de AWS
-│   ├── Common-repo/      # Instalación de repositorios básicos
-│   ├── NewDirectories/   # Creación de ficheros
-│   ├── Python/           # Instalación de python y pip
-│   ├── Terraform/        # Instalación de Terraform
-│   └── zsh/              # instalación y configuración de zsh como shell
-└── README.md             # Este archivo
+    # ansible_post_install
+    # ├── dynamic_inventory.py  # Script en Python para inventario
+    # ├── main.yml              # Archivo principal del playbook de Ansible
+    # ├── roles/                # Carpeta con roles de Ansible
+    # │   ├── aws/              # Instala la CLI de AWS
+    # │   ├── Common-repo/      # Instalación de repositorios básicos
+    # │   ├── NewDirectories/   # Creación de ficheros
+    # │   ├── Python/           # Instalación de python y pip
+    # │   ├── Terraform/        # Instalación de Terraform
+    # │   └── zsh/              # instalación y configuración de zsh como shell
+    # └── README.md             # Este archivo
 
 Uso
 Ejecución del Playbook
